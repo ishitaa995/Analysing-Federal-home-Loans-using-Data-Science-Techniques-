@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import accuracy_score, precision_score, precision_recall_fscore_support, confusion_matrix
+from sklearn.metrics import accuracy_score, precision_score, precision_recall_fscore_support, confusion_matrix, \
+    mean_squared_error, mean_absolute_error, r2_score
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
@@ -50,23 +51,17 @@ X_train[target] = y_train
 df = X_train.append(X_test)
 
 # code for predictions
-df["FHLBankID"].unique()
-dk["FHLBankID"].unique()
-
 df.isnull().any()
-# removing columns FIPSStateCode and FIPSCountyCode
-
-df.drop(['FIPSStateCode', 'FIPSCountyCode'], axis=1, inplace=True)
-target = ["FHLBankID"]
+target = ["Amount"]
 X = df.loc[:, ~df.columns.isin(target)]
 y = df.loc[:, df.columns.isin(target)]
 
 # Define the class labels
-class_labels = {3: 0, 6: 1, 9: 2, 8: 3, 2: 4, 10: 5, 5: 6, 1: 7, 7: 8, 4: 9, 0: 10}
-#class_labels = {3, 6, 9, 8, 2, 10, 5, 1, 7, 4, 0}
+# class_labels = {3: 0, 6: 1, 9: 2, 8: 3, 2: 4, 10: 5, 5: 6, 1: 7, 7: 8, 4: 9, 0: 10}
+# class_labels = {3, 6, 9, 8, 2, 10, 5, 1, 7, 4, 0}
 
 # Map the year values to class labels
-y['FHLBankID'] = y['FHLBankID'].map(class_labels)
+# y['FHLBankID'] = y['FHLBankID'].map(class_labels)
 X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.30, random_state=0)
 
 # train= xgb.DMatrix(X_train,label=y_train)
@@ -80,38 +75,24 @@ X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.30, rando
 # epochs=10# model=xgb.train(param,train,epochs)
 # df.info()
 # label_values = (df['Year'].unique())
-xgb_model = xgb.XGBClassifier(objective='multi:softmax', num_class=13, learning_rate=0.1, max_depth=6, n_estimators=100, colsample_bytree=0.8)
+xgb_model = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=100, max_depth=3, learning_rate=0.1)
+
+# xgb_model = xgb.XGBRegressor(objective='reg:squarederror', =13, learning_rate=0.1, max_depth=6, n_estimators=100, colsample_bytree=0.8)
 
 # Train the XGBoost model on the training data
 xgb_model.fit(X_train, y_train)
 y_pred = xgb_model.predict(X_test)
-precision, recall, f1_score, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted')
-accuracy = accuracy_score(y_test, y_pred)
-print("Precision:", precision)
-print("Recall:", recall)
-print("F1-score:", f1_score)
-print("Accuracy:", accuracy)
 
-# Assuming y_pred and y_true are the predicted and true labels respectively
+mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
 
-cm = confusion_matrix(y_test, y_pred)
-classes = (df['FHLBankID'].unique())
-type(cm)
-# Print the confusion matrix
-print(cm)
-plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-for i in range(cm.shape[0]):
-    for j in range(cm.shape[1]):
-        plt.annotate(str(cm[i][j]), xy=(j, i), ha='center', va='center')
-plt.title('Confusion Matrix')
-plt.colorbar()
-tick_marks = np.arange(len(classes))
-plt.xticks(tick_marks, classes, rotation=45)
-plt.yticks(tick_marks, classes)
-plt.xlabel('Predicted Label')
-plt.ylabel('True Label')
-plt.tight_layout()
-plt.show()
+print('MSE:', mse)
+print('RMSE:', rmse)
+print('MAE:', mae)
+print('R2:', r2)
+
 
 importances = xgb_model.feature_importances_
 feature_importances = pd.DataFrame({'feature': X.columns, 'importance': importances})
@@ -125,15 +106,6 @@ plt.ylabel('Feature')
 plt.title('Feature Importances')
 plt.show()
 
-similarity_matrix = cm / cm.sum(axis=1, keepdims=True)
-plt.figure(figsize=(8, 6))
-sns.heatmap(similarity_matrix, annot=True, cmap='Blues')
-plt.title('Similarity Matrix')
-plt.xlabel('Predicted Labels')
-plt.ylabel('True Labels')
-plt.show()
-df['FHLBankID'] = fhlbankid_encoder.inverse_transform(df['FHLBankID'])
-df['PropType'] = proptype_encoder.inverse_transform(df['PropType'])
 
 # correlation code
 df = pd.DataFrame(X_test, columns=X_test.columns)
@@ -157,11 +129,6 @@ plt.xticks(range(len(df.columns)), df.columns, rotation=90)
 plt.yticks(range(len(df.columns)), df.columns)
 plt.colorbar()
 plt.show()
-
-
-
-
-
 
 
 
