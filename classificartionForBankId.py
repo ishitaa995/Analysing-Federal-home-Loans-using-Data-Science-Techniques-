@@ -146,8 +146,8 @@ sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
 
 # alternative code for correlation matrix
 df = pd.DataFrame(X_test, columns=X_test.columns)
-df["predicted_value"] = y_pred
-
+#df["predicted_value"] = y_pred
+df["FHLBankID"] = y_pred
 # Calculate the correlation matrix
 corr_matrix = df.corr()
 
