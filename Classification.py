@@ -12,18 +12,21 @@ import matplotlib.pyplot as plt
 
 
 # df = pd. read_csv("C:/Users/kavya/OneDrive/Desktop/Spring2023_890/LoanFHLBData/original/LoanData.csv")
-# df.drop(['LoanNumber', 'AssignedID','Coop','Program','AcquDate','MortDate','Bed1','Bed2','Bed3','Bed4','Aff1','Aff2','Aff3','Aff4','Occup','NumUnits','RentUt1','RentUt2','RentUt3','Product','RentUt4','Rent1','Rent2','Rent3','Rent4','FeatureID','SellType','Seller','SellCity','SellSt','CICA','LienStatus','FedFinStbltyPlan','GSEREO','FHFBID','Geog','SpcHsgGoals','AcqTyp','PrepayP'], axis=1, inplace=True)
-
 df = pd. read_csv("C:/Users/isayal/Desktop/LoanData.csv")
+df.drop(['LoanNumber', 'AssignedID','Coop','Program','AcquDate','MortDate','Bed1','Bed2','Bed3','Bed4','Aff1','Aff2','Aff3','Aff4','Occup','NumUnits','RentUt1','RentUt2','RentUt3','Product','RentUt4','Rent1','Rent2','Rent3','Rent4','FeatureID','SellType','Seller','SellCity','SellSt','CICA','LienStatus','FedFinStbltyPlan','GSEREO','FHFBID','Geog','SpcHsgGoals','AcqTyp','PrepayP'], axis=1, inplace=True)
 
+
+# code to fill missing values for FHLBankID Column based on FIPSStateCode
 dk = pd.DataFrame()
 dk = df[['FHLBankID','FIPSStateCode']]
 fill_values = dict(dk.groupby('FIPSStateCode')['FHLBankID'].apply(lambda x: x.dropna().mode()[0]))
 dk['FHLBankID'] = dk.apply(lambda x: fill_values[x['FIPSStateCode']] if pd.isnull(x['FHLBankID']) else x['FHLBankID'], axis=1)
 df['FHLBankID'] = dk['FHLBankID']
 
-label_encoder = LabelEncoder()
+
 # df[['FHLBankID', 'PropType']] = df[['FHLBankID', 'PropType']].apply(label_encoder.fit_transform)
+
+label_encoder = LabelEncoder()
 fhlbankid_encoder = LabelEncoder()
 df['FHLBankID'] = fhlbankid_encoder.fit_transform(df['FHLBankID'])
 
@@ -51,25 +54,25 @@ df['PropType'] = proptype_encoder.fit_transform(df['PropType'])
 cols_with_missing = df.columns[df.isnull().any()].tolist()
 testdata = df[df.isnull().any(axis=1)]
 df.dropna(inplace=True)
-target=["Tractrat","IncRat"]
-X_train=df.loc[:,~df.columns.isin(target)]
-y_train=df.loc[:,df.columns.isin(target)]
-X_test=testdata.loc[:,~df.columns.isin(target)]
-y_test=testdata.loc[:,df.columns.isin(target)]
+target=["Tractrat", "IncRat"]
+X_train = df.loc[:, ~df.columns.isin(target)]
+y_train = df.loc[:, df.columns.isin(target)]
+X_test = testdata.loc[:, ~df.columns.isin(target)]
+y_test = testdata.loc[:, df.columns.isin(target)]
 clf = MultiOutputRegressor(RandomForestRegressor(max_depth=2, random_state=0))
 clf.fit(X_train, y_train)
 y_train.isnull().sum()
 y_pred = clf.predict(X_test)
-y_test=y_pred
-X_test[target]=y_pred
-X_train[target]=y_train
-df=X_train.append(X_test)
+y_test = y_pred
+X_test[target] = y_pred
+X_train[target] = y_train
+df = X_train.append(X_test)
 
 # df[['FHLBankID', 'PropType']] = df[['FHLBankID', 'PropType']].apply(label_encoder.inverse_transform)
 df.isnull().any()
-target=["Year"]
-X=df.loc[:,~df.columns.isin(target)]
-y=df.loc[:,df.columns.isin(target)]
+target = ["Year"]
+X = df.loc[:, ~df.columns.isin(target)]
+y = df.loc[:, df.columns.isin(target)]
 
 # Define the class labels
 class_labels = {2009: 0, 2010: 1, 2011: 2, 2012: 3, 2013: 4, 2014: 5, 2015: 6, 2016: 7, 2017: 8, 2018: 9, 2019: 10, 2020: 11, 2021: 12}
