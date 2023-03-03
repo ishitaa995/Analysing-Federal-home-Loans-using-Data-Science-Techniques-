@@ -134,3 +134,39 @@ plt.ylabel('True Labels')
 plt.show()
 df['FHLBankID'] = fhlbankid_encoder.inverse_transform(df['FHLBankID'])
 df['PropType'] = proptype_encoder.inverse_transform(df['PropType'])
+
+# correlation code
+df = pd.DataFrame(X_test, columns=X_test.columns)
+df["predicted_value"] = y_pred
+corr_matrix = df.corr()
+print(corr_matrix)
+sns.set(font_scale=1)
+sns.set(rc={"figure.figsize":(12,8)})
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
+
+
+
+""" 
+#correlatio code for a case where we can select features instead of taking the entire dataset
+import pandas as pd
+import seaborn as sns
+import numpy as np
+
+# create a sample dataframe with 60 features
+df = pd.DataFrame(np.random.rand(100, 60), columns=[f"Feature_{i}" for i in range(60)])
+
+# select a subset of features
+selected_features = ["Feature_1", "Feature_3", "Feature_5", "Feature_7", "Feature_9", "Feature_11", "Feature_13", "Feature_15"]
+
+# calculate the correlation matrix for the selected features
+corr_matrix = df[selected_features].corr()
+
+# increase the size of the heatmap figure
+sns.set(font_scale=1.2)
+sns.set(rc={"figure.figsize":(12,8)})
+
+# plot the correlation matrix as a heatmap
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.2f', center=0, vmin=-1, vmax=1, xticklabels=True, yticklabels=True)
+"""
+
+
