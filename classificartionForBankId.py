@@ -95,7 +95,7 @@ print("Accuracy:", accuracy)
 # Assuming y_pred and y_true are the predicted and true labels respectively
 
 cm = confusion_matrix(y_test, y_pred)
-classes = (df['FHLBankID'].unique())
+classes = (df['FHLBankID'].unique()).sort()
 type(cm)
 # Print the confusion matrix
 print(cm)
